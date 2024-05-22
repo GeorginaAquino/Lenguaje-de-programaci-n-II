@@ -1,0 +1,50 @@
+#include <iostream>
+#include <string>
+
+#define SAW std::string
+#define SI std
+#define SING cin
+#define CEVICHE return
+#define ELFIN endl
+#define QUITAR -
+#define AGREGA +
+#define EXIT std::cout
+#define MULTI *
+#define BUCLE while
+
+int main() {
+    bool continuar = true;
+
+    BUCLE (continuar) {
+        double numero1, numero2;
+        SAW expresion;
+
+        EXIT << "Ingrese la operacion (AGREGA, QUITAR, MULTI, SALIR): ";
+        SI::SING >> expresion;
+
+        if (expresion == "SALIR") {
+            continuar = false;
+        } else {
+            EXIT << "Ingrese el primer numero: ";
+            SI::SING >> numero1;
+
+            EXIT << "Ingrese el segundo numero: ";
+            SI::SING >> numero2;
+
+            if (expresion == "AGREGA") {
+                double resultado = numero1 AGREGA numero2;
+                EXIT << "El resultado al agregar es :" << resultado << SI::ELFIN;
+            } else if (expresion == "QUITAR") {
+                double resultado = numero1 QUITAR numero2;
+                EXIT << "El resultado al quitar es: " << resultado << SI::ELFIN;
+            } else if (expresion == "MULTI") {
+                double resultado = numero1 MULTI numero2;
+                EXIT << "El resultado al multiplicar es: " << resultado << SI::ELFIN;
+            } else {
+                EXIT << "Operacion no valida" << SI::ELFIN;
+            }
+        }
+    }
+
+    CEVICHE 0;
+}
