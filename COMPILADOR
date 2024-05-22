@@ -1,0 +1,25 @@
+import streamlit as st
+import subprocess
+
+# Título de la aplicación
+st.title("Compilador de Python con Streamlit")
+
+# Área de texto para ingresar el código Python
+codigo_python = st.code_input(label="Ingrese el código Python:", language="python")
+
+# Ejecutar el código compilado
+if st.button("Compilar"):
+    # Validación básica de sintaxis
+    try:
+        exec(codigo_python)
+    except SyntaxError as e:
+        st.error("Error de sintaxis:", e.args[0])
+        continue
+
+    # Ejecutar el código Python
+    try:
+        output = subprocess.check_output(["python", "-c", codigo_python], universal_newlines=True)
+        st.success("¡Código compilado exitosamente!")
+        st.code(output)
+    except subprocess.CalledProcessError as e:
+        st.error("Error al ejecutar el código:", e.output)
