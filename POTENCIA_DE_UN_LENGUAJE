@@ -1,0 +1,42 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cmath>
+using namespace std;
+vector<string> generarCadenas(const string& alfabeto, int longitud) {
+    vector<string> cadenas;
+    if (longitud == 0) {
+        cadenas.push_back("");
+        return cadenas;
+    }
+    vector<string> cadenasAnteriores = generarCadenas(alfabeto, longitud - 1);
+    for (const string& cadena : cadenasAnteriores) {
+        for (char simbolo : alfabeto) {
+            cadenas.push_back(cadena + simbolo);
+        }
+    }
+
+    return cadenas;
+}
+int main() {
+    string alfabeto;
+    int potencia;
+
+    cout << "Ingrese el alfabeto: ";
+    getline(cin, alfabeto);
+
+    cout << "Ingrese la potencia: ";
+    cin >> potencia;
+
+    vector<string> cadenas = generarCadenas(alfabeto, potencia);
+    int numCadenas = cadenas.size();
+
+    cout << "Numero de cadenas en el lenguaje de potencia " << potencia << " sobre el alfabeto '"
+         << alfabeto << "': " << numCadenas << endl;
+
+    cout << "Las cadenas son: " << endl;
+    for (const string& cadena : cadenas) {
+        cout << cadena << endl;
+    }
+    return 0;
+}
