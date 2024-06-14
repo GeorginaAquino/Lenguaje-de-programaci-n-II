@@ -1,0 +1,144 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+class DataHandler:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.data = None
+    
+    def load_data(self):
+        try:
+            self.data = pd.read_csv(self.file_path)
+            st.success("Datos cargados exitosamente.")
+        except Exception as e:
+            st.error(f"Error al cargar los datos: {str(e)}")
+    
+    def preview_data(self):
+        if self.data is not None:
+            st.subheader("Vista previa de los datos")
+            st.dataframe(self.data.head(11))
+        else:
+            st.warning("No se han cargado datos.")
+    
+    def calculate_statistics(self):
+        if self.data is not None:
+            st.subheader("Análisis estadístico 📊💻")
+            numeric_columns = self.data.select_dtypes(include=['float64', 'int64']).columns
+            if len(numeric_columns) > 0:
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.subheader("Media")
+                    for column in numeric_columns:
+                        mean_value = self.data[column].mean()
+                        st.write(f"{column}: {mean_value}")
+                    
+                    st.subheader("Mediana")
+                    for column in numeric_columns:
+                        median_value = self.data[column].median()
+                        st.write(f"{column}: {median_value}")
+                    
+                    st.subheader("Desviación estándar")
+                    for column in numeric_columns:
+                        std_value = self.data[column].std()
+                        st.write(f"{column}: {std_value}")
+                
+                with col2:
+                    st.subheader("Histogramas")
+                    fig, ax = plt.subplots(figsize=(5, 5))
+                    self.data.hist(ax=ax, bins=20)
+                    plt.tight_layout()
+                    st.pyplot(fig)
+                    
+                
+            else:
+                st.info("No hay columnas numéricas en el conjunto de datos.")
+        else:
+            st.warning("No se han cargado datos.")
+    
+    def linear_regression(self):
+        if self.data is not None:
+            st.subheader("Regresión Lineal 📈")
+            numeric_columns = self.data.select_dtypes(include=['float64', 'int64']).columns
+            if len(numeric_columns) >= 2:
+                target_column = st.selectbox("Selecciona la columna objetivo", numeric_columns)
+                feature_columns = st.multiselect("Selecciona las columnas de características", numeric_columns.drop(target_column))
+
+                if len(feature_columns) > 0:
+                    X = self.data[feature_columns]
+                    y = self.data[target_column]
+                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+                    
+                    model = LinearRegression()
+                    model.fit(X_train, y_train)
+                    
+                    y_pred_train = model.predict(X_train)
+                    y_pred_test = model.predict(X_test)
+                    
+                    st.write("Coeficientes del modelo:", model.coef_)
+                    st.write("Intercepto del modelo:", model.intercept_)
+                    
+                    st.subheader("Evaluación del Modelo")
+                    
+                    col1, col2 = st.columns([2, 1])
+                    
+                    with col1:
+                        st.write("**Datos de entrenamiento**")
+                        st.write(f"Error Cuadrático Medio (MSE): {mean_squared_error(y_train, y_pred_train)}")
+                        st.write(f"Coeficiente de determinación (R²): {r2_score(y_train, y_pred_train)}")
+                        
+                        st.write("**Datos de prueba**")
+                        st.write(f"Error Cuadrático Medio (MSE): {mean_squared_error(y_test, y_pred_test)}")
+                        st.write(f"Coeficiente de determinación (R²): {r2_score(y_test, y_pred_test)}")
+                    
+                    with col2:
+                        st.subheader("Gráfico de Resultados")
+                        fig, ax = plt.subplots(figsize=(4, 4))
+                        ax.scatter(y_test, y_pred_test)
+                        ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=4)
+                        ax.set_xlabel('Valores reales')
+                        ax.set_ylabel('Valores predichos')
+                        st.pyplot(fig)
+                else:
+                    st.warning("Selecciona al menos una columna de características.")
+            else:
+                st.warning("Se necesitan al menos dos columnas numéricas para realizar una regresión lineal.")
+        else:
+            st.warning("No se han cargado datos.")
+
+def main():
+    st.set_page_config(page_title="Análisis de Datos CSV", layout="wide")
+    
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #e6f7e6;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.title("Aplicación de Análisis de Datos CSV 👩‍💻")
+    
+    uploaded_file = st.file_uploader("Cargar archivo CSV", type="csv")
+    
+    if uploaded_file is not None:
+        data_handler = DataHandler(uploaded_file)
+        data_handler.load_data()
+        
+        if data_handler.data is not None:
+            data_handler.preview_data()
+            data_handler.calculate_statistics()
+            data_handler.linear_regression()
+    else:
+        st.info("Por favor, carga un archivo CSV para comenzar el análisis.")
+
+if __name__ == '__main__':
+    main()
